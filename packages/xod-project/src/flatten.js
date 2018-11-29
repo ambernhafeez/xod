@@ -85,7 +85,7 @@ const terminalOriginalDirectionLens = R.lensProp('originalDirection');
 const isLeafPatchWithImplsOrTerminal = def(
   'isLeafPatchWithImplsOrTerminal :: Patch -> Boolean',
   R.anyPass([
-    Patch.hasImpl,
+    R.both(Patch.isPatchNotImplementedInXod, Patch.hasImpl),
     Patch.isTerminalPatch,
     R.pipe(Patch.getPatchPath, R.equals(CONST.NOT_IMPLEMENTED_IN_XOD_PATH)),
   ])
@@ -795,6 +795,7 @@ export const extractPatches = R.curry(
 const convertPatch = def(
   'convertPatch :: Project -> [Pair PatchPath Patch] -> Patch -> Patch',
   (project, leafPatches, patch) =>
+    // TODO: check for marker instead of hasImpl?
     R.unless(Patch.hasImpl, originalPatch => {
       const leafPatchPaths = R.pluck(0, leafPatches);
       const flattenEntities = extractPatches(
