@@ -8,7 +8,7 @@ import {
   PASTE_ENTITIES,
   INSTALL_LIBRARIES_COMPLETE,
 } from '../editor/actionTypes';
-import { IMPL_TEMPLATE } from '../editor/constants';
+import { MANAGED_ATTACHMENT_TEMPLATES } from '../editor/constants';
 
 import {
   addPoints,
@@ -23,7 +23,6 @@ import {
   NODE_PROPERTY_KEY,
   MAIN_PATCH_PATH,
 } from './constants';
-import { isNotImplementedInXodNode } from './utils';
 
 // TODO: rewrite this?
 const selectNodePropertyUpdater = ({ kind, key, value = '' }) => {
@@ -176,10 +175,14 @@ export default (state = {}, action) => {
       return R.over(patchLens, XP.setPatchDescription(description), state);
     }
 
-    case AT.PATCH_NATIVE_IMPLEMENTATION_UPDATE: {
-      const { patchPath, newSource } = action.payload;
+    case AT.PATCH_MANAGED_ATTACHMENT_UPDATE: {
+      const { patchPath, newContents, markerName } = action.payload;
       const patchLens = XP.lensPatch(patchPath);
-      return R.over(patchLens, XP.setImpl(newSource), state);
+      return R.over(
+        patchLens,
+        XP.setAttachmentManagedByMarker(markerName, newContents),
+        state
+      );
     }
 
     case INSTALL_LIBRARIES_COMPLETE: {
@@ -255,18 +258,22 @@ export default (state = {}, action) => {
           XP.upsertLinks(entities.links),
           XP.upsertComments(entities.comments),
           XP.upsertNodes(entities.nodes),
-          R.unless(
-            () => R.isNil(entities.impl),
-            R.compose(patch => {
-              const existingNiixNode = R.compose(
-                R.find(isNotImplementedInXodNode),
+          R.reduce(
+            (patch, [markerPath, attachmentContents]) => {
+              const existingMarkerNode = R.compose(
+                R.find(R.pipe(XP.getNodeType, R.equals(markerPath))),
                 XP.listNodes
               )(patch);
 
-              return existingNiixNode
-                ? XP.dissocNode(existingNiixNode, patch)
-                : patch;
-            }, XP.setImpl(entities.impl))
+              return R.compose(
+                XP.setAttachmentManagedByMarker(markerPath, attachmentContents),
+                existingMarkerNode
+                  ? XP.dissocNode(existingMarkerNode)
+                  : R.identity
+              )(patch);
+            },
+            R.__,
+            entities.attachments
           )
         ),
         state
@@ -288,12 +295,16 @@ export default (state = {}, action) => {
         XP.lensPatch(patchPath), // TODO: can we have a situation where patch does not exist?
         R.compose(
           XP.assocNode(newNode),
+          // TODO: should this be in xod-project? (along with MANAGED_ATTACHMENT_TEMPLATES)
           R.when(
             R.both(
-              () => typeId === XP.NOT_IMPLEMENTED_IN_XOD_PATH,
-              R.complement(XP.hasImpl)
+              () => R.has(typeId, XP.MANAGED_ATTACHMENT_FILENAMES),
+              R.complement(XP.hasAttachmentManagedByMarker(typeId))
             ),
-            XP.setImpl(IMPL_TEMPLATE)
+            XP.setAttachmentManagedByMarker(
+              typeId,
+              R.propOr('', typeId, MANAGED_ATTACHMENT_TEMPLATES)
+            )
           )
         ),
         state

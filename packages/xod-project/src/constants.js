@@ -191,11 +191,21 @@ export const OUTPUT_SELF_PATH = 'xod/patch-nodes/output-self';
  */
 export const UTILITY_MARKER_PATH = 'xod/patch-nodes/utility';
 
+/**
+ * Path for a 'magic' patch, whose instance is placed
+ * to mark patches with an attached tabtest.
+ */
+export const TABTEST_MARKER_PATH = 'xod/patch-nodes/tabtest';
+
 export const FROM_BUS_PATH = 'xod/patch-nodes/from-bus';
 export const TO_BUS_PATH = 'xod/patch-nodes/to-bus';
 
 export const JUMPER_PATCH_PATH = 'xod/patch-nodes/jumper';
 
-export const IMPL_FILENAME = 'patch.cpp';
-
 export const UNTITLED_PROJECT = 'untitled';
+
+// { markerName: fileName }
+export const MANAGED_ATTACHMENT_FILENAMES = {
+  [NOT_IMPLEMENTED_IN_XOD_PATH]: 'patch.cpp',
+  [TABTEST_MARKER_PATH]: 'patch.test.tsv',
+};

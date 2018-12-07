@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 import { def } from './types';
-import { IMPL_FILENAME } from './constants';
+import { MANAGED_ATTACHMENT_FILENAMES } from './constants';
 
 export const createAttachment = def(
   'createAttachment :: String -> String -> String -> Attachment',
@@ -11,14 +11,21 @@ export const createAttachment = def(
   })
 );
 
-export const createImplAttachment = def(
-  'createImplAttachment :: Source -> Attachment',
-  content => createAttachment(IMPL_FILENAME, 'utf-8', content)
+export const createAttachmentManagedByMarker = def(
+  'createAttachmentManagedByMarker :: PatchPath -> String -> Attachment',
+  (markerName, content) =>
+    createAttachment(
+      // TODO: what about unknown filenames?
+      MANAGED_ATTACHMENT_FILENAMES[markerName],
+      'utf-8',
+      content
+    )
 );
 
-export const isImplAttachment = def(
-  'isImplAttachment :: Attachment -> Boolean',
-  R.propEq('filename', IMPL_FILENAME)
+export const isAttachmentManagedByMarker = def(
+  'isAttachmentManagedByMarker :: PatchPath -> Attachment -> Boolean',
+  (markerName, attachment) =>
+    R.propEq('filename', MANAGED_ATTACHMENT_FILENAMES[markerName], attachment)
 );
 
 export const getFilename = def(

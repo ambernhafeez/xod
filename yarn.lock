@@ -12426,6 +12426,11 @@ react-contextmenu@^2.9.1:
   version "3.2.2"
   resolved "git+https://github.com/xodio/react-custom-scroll.git#aefa21e3fa3bcc173b969176b91044db05399a67"
 
+react-datasheet@^1.3.9:
+  version "1.3.9"
+  resolved "https://registry.yarnpkg.com/react-datasheet/-/react-datasheet-1.3.9.tgz#ef65ec87210ad0a22d09046f7fd371502866db05"
+  integrity sha512-gZeTUrq5g1PsjkJ5Gwc1UaaUBHQWoDk6NGSsUooSXPbtjM8uUTHlG/9jFQGhvkQg96HATFUXBHPO0gK57OiZbA==
+
 react-dnd-html5-backend@^2.5.1:
   version "2.5.4"
   resolved "https://registry.yarnpkg.com/react-dnd-html5-backend/-/react-dnd-html5-backend-2.5.4.tgz#974ad083f67b12d56977a5b171f5ffeb29d78352"
